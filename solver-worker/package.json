@@ -1,5 +1,5 @@
 {
-  "name": "elab-solver-worker",
+  "name": "elab-java-assistant-worker",
   "version": "2.0.0",
   "private": true,
   "type": "module",

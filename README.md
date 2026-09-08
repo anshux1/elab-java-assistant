@@ -1,49 +1,16 @@
-# eLab Solver
+# eLab Java Assistant
 
-A small Chrome/Edge extension for eLab programming pages.
+A lightweight Chrome & Edge extension for Java problems on [SRM eLab](https://dld.srmist.edu.in/fshelab/).
 
-It adds exactly two extension actions:
+[Download ZIP](https://github.com/anshux1/elab-java-assistant/raw/refs/heads/main/elab-java-assistant.zip) · [Installation guide](INSTALLATION.md) · [Backend docs](solver-worker/README.md)
 
-- **Solve** — sends the current problem and starter code to the companion Worker, then inserts the generated Java solution into Ace for review.
-- **Copy** — copies the problem and grading requirements as Markdown.
+## Two simple actions
 
-The extension never clicks Run, Evaluate, Save, or Reset.
+- **Solve** — generate a Java solution and insert it into the editor for review.
+- **Copy** — copy the problem, input/output formats, and grading requirements as Markdown.
 
-## Install the extension
+Your edits are preserved while a solution is generated. Grading warnings are shown for review. The extension never clicks Run, Evaluate, Save, or Reset.
 
-1. Deploy the Worker in [`solver-worker/`](./solver-worker/).
-2. Open `chrome://extensions` or `edge://extensions`.
-3. Enable **Developer mode**.
-4. Choose **Load unpacked**.
-5. Select [`problem-copier-extension/`](./problem-copier-extension/).
-6. Open or reload an eLab problem page.
+**Works only on `https://dld.srmist.edu.in/fshelab/`.** Requires Chrome or Edge 114+.
 
-The extension sends requests only to the configured Worker. The Ollama API key stays in the Worker and is never included in the extension.
-
-## Worker setup
-
-```bash
-cd solver-worker
-npm install
-cp .dev.vars.example .dev.vars
-```
-
-Put your Ollama key in `.dev.vars` for local development, then run:
-
-```bash
-npm run dev
-```
-
-For deployment:
-
-```bash
-npm run check
-npx wrangler secret put OLLAMA_API_KEY
-npm run deploy
-```
-
-The backend uses Hono and `ollama/browser` on Cloudflare Workers. A single request streams progress while Ollama generates, then returns complete Java or a specific error. Approximate grading checks appear as review warnings. No queue, database, or EC2 host is needed.
-
-See [`solver-worker/README.md`](./solver-worker/README.md) for the protocol, limits, and automated tests.
-
-> Browser-internal pages such as `chrome://extensions` cannot be modified by extensions. For a local HTML page, enable **Allow access to file URLs** in the extension details.
+Powered by Ollama Cloud through a Cloudflare Worker. The API key stays on the server.

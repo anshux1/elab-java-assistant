@@ -36,7 +36,7 @@ window.ace={edit:()=>({session:{getValue:()=>window.editorValue,setValue:value=>
 async function open(mode: string) {
   const page = await context.newPage();
   pages.push(page);
-  await page.goto(pageOrigin + '/' + mode);
+  await page.goto(pageOrigin + '/fshelab/' + mode);
   await expect(page.locator('#elab-solve-button')).toBeVisible();
   return page;
 }
@@ -64,14 +64,20 @@ test.beforeAll(async () => {
   const manifestPath = join(extension, 'manifest.json');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   manifest.host_permissions = [solverOrigin + '/*'];
-  await writeFile(manifestPath, JSON.stringify(manifest));
+  expect(manifest.content_scripts.every((script: { matches: string[] }) =>
+    script.matches.length === 1 && script.matches[0] === 'https://dld.srmist.edu.in/fshelab/*')).toBe(true);
   server = createServer((request, response) => {
     response.setHeader('Content-Type', 'text/html');
-    response.end(fixture((request.url || '/').slice(1).replace(/[^a-z-]/g, '')));
+    response.end(fixture((request.url || '/').replace(/^\/fshelab\//, '').replace(/[^a-z-]/g, '')));
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   const address = server.address() as { port: number };
   pageOrigin = `http://127.0.0.1:${address.port}`;
+  // Redirect only the origin for fixtures; preserve the shipped /fshelab/ restriction.
+  for (const script of manifest.content_scripts) {
+    script.matches = script.matches.map((pattern: string) => pattern.replace('https://dld.srmist.edu.in', pageOrigin));
+  }
+  await writeFile(manifestPath, JSON.stringify(manifest));
   context = await chromium.launchPersistentContext(join(directory, 'profile'), {
     channel: 'chromium', headless: true,
     args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`]
@@ -120,4 +126,14 @@ test('preserves edits made while generation is running', async () => {
   await page.evaluate(() => { (window as any).editorValue = 'my unsaved edits'; });
   await expect(page.locator('#elab-solver-toast')).toContainText('Your edits were kept');
   expect(await page.evaluate(() => (window as any).editorValue)).toBe('my unsaved edits');
+});
+
+test('does not inject outside the supported eLab path', async () => {
+  const page = await context.newPage();
+  pages.push(page);
+  await page.goto(pageOrigin + '/unrelated');
+  await page.waitForTimeout(500);
+  await expect(page.locator('#elab-solve-button')).toHaveCount(0);
+  await expect(page.locator('#elab-copy-button')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as any).__elabSolverBridgeLoaded)).toBeUndefined();
 });

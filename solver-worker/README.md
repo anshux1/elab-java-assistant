@@ -1,4 +1,4 @@
-# eLab Solver Worker
+# eLab Java Assistant · Worker
 
 A single Hono `/solve` endpoint on Cloudflare Workers. `ollama/browser` calls Ollama Cloud; the extension uses native fetch. No database, queue, authentication flow, or EC2 server is required.
 
@@ -13,7 +13,7 @@ npm run dev
 
 The default hosted model is `gpt-oss:120b`. There is no local model download. The SDK's browser entry point runs on the server, so the Ollama key stays in Worker secrets.
 
-For extension testing, change `SOLVER_ENDPOINT` in `../problem-copier-extension/service-worker.js` to `http://127.0.0.1:8787/solve`, reload the unpacked extension, and reload the problem page. Restore the deployed URL before distributing the extension.
+For local extension testing, temporarily add `http://127.0.0.1:8787/*` to the manifest host permissions and change `SOLVER_ENDPOINT` in `../problem-copier-extension/service-worker.js` to `http://127.0.0.1:8787/solve`, reload the unpacked extension, and reload the problem page. Restore the deployed URL before distributing the extension.
 
 ```bash
 npm run check

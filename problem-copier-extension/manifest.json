@@ -1,15 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "eLab Solver",
-  "description": "Adds only Solve and Copy actions to eLab programming problems.",
-  "version": "2.1.0",
+  "name": "eLab Java Assistant",
+  "description": "Solve Java problems and copy problem statements on SRM eLab.",
+  "version": "2.1.1",
   "permissions": [
     "clipboardWrite"
   ],
   "host_permissions": [
-    "https://elab-solver.elab-solver-worker.workers.dev/*",
-    "http://127.0.0.1:8787/*",
-    "http://localhost:8787/*"
+    "https://elab-solver.elab-solver-worker.workers.dev/*"
   ],
   "background": {
     "service_worker": "service-worker.js",
@@ -18,7 +16,7 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://dld.srmist.edu.in/fshelab/*"
       ],
       "js": [
         "page-bridge.js"
@@ -28,7 +26,7 @@
     },
     {
       "matches": [
-        "<all_urls>"
+        "https://dld.srmist.edu.in/fshelab/*"
       ],
       "css": [
         "content.css"
@@ -39,5 +37,6 @@
       "run_at": "document_idle"
     }
   ],
-  "minimum_chrome_version": "114"
+  "minimum_chrome_version": "114",
+  "homepage_url": "https://github.com/anshux1/elab-java-assistant"
 }
