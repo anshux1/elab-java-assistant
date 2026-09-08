@@ -1,33 +1,29 @@
 (() => {
   "use strict";
 
-  if (window.__elabSolverEditorBridgeLoaded) return;
-  window.__elabSolverEditorBridgeLoaded = true;
+  if (window.__elabSolverBridgeLoaded) return;
+  window.__elabSolverBridgeLoaded = true;
 
   const REQUEST_EVENT = "elab-solver:editor-request";
   const RESPONSE_EVENT = "elab-solver:editor-response";
-  const ALLOWED_OPERATIONS = new Set(["read", "write"]);
+  const OPERATIONS = new Set(["read", "write"]);
 
-  const normalizeNewlines = (value) => String(value || "").replace(/\r\n?/g, "\n");
-
-  function respond(response) {
-    document.dispatchEvent(
-      new CustomEvent(RESPONSE_EVENT, {
-        detail: JSON.stringify(response)
-      })
-    );
+  function respond(value) {
+    document.dispatchEvent(new CustomEvent(RESPONSE_EVENT, {
+      detail: JSON.stringify(value)
+    }));
   }
 
   document.addEventListener(REQUEST_EVENT, (event) => {
     let request;
     try {
       request = JSON.parse(String(event.detail || ""));
-    } catch (_) {
+    } catch {
       return;
     }
 
     const requestId = typeof request?.requestId === "string" ? request.requestId : "";
-    if (!requestId || !ALLOWED_OPERATIONS.has(request.operation)) return;
+    if (!requestId || !OPERATIONS.has(request.operation)) return;
 
     try {
       if (!window.ace?.edit || !document.getElementById("ace-editor")) {
@@ -37,7 +33,7 @@
       const editor = window.ace.edit("ace-editor");
       const session = editor?.session;
       if (!session?.getValue || !session?.setValue) {
-        throw new Error("The page's Ace editor session is unavailable.");
+        throw new Error("The Ace editor session is unavailable.");
       }
 
       if (request.operation === "read") {
@@ -54,11 +50,10 @@
       editor.clearSelection?.();
       editor.focus?.();
 
-      const writtenCode = session.getValue();
-      if (normalizeNewlines(writtenCode) !== normalizeNewlines(request.code)) {
-        throw new Error("Ace did not accept the complete generated solution.");
-      }
-      respond({ requestId, ok: true, code: writtenCode });
+      const actual = String(session.getValue()).replace(/\r\n?/g, "\n");
+      const expected = request.code.replace(/\r\n?/g, "\n");
+      if (actual !== expected) throw new Error("Ace did not accept the complete solution.");
+      respond({ requestId, ok: true, code: session.getValue() });
     } catch (error) {
       respond({
         requestId,

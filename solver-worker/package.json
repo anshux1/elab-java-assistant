@@ -1,23 +1,26 @@
 {
   "name": "elab-solver-worker",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "check": "npm run typecheck && npm test && wrangler deploy --dry-run",
+    "test:browser": "wrangler deploy --dry-run --outdir dist && playwright test"
   },
   "dependencies": {
     "hono": "^4.13.7",
+    "ollama": "^0.6.3",
     "zod": "^4.5.4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260905.1",
-    "@types/jsdom": "^30.0.0",
-    "@types/node": "^26.4.1",
-    "jsdom": "^30.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.5.0",
+    "miniflare": "^5.20260903.0-alpha",
     "typescript": "^7.0.2",
     "vitest": "^5.0.0",
     "wrangler": "^4.129.0"

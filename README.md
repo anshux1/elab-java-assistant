@@ -1,28 +1,49 @@
-# eLab Java Problem Copy & Solve Extension
+# eLab Solver
 
-A Chrome/Edge extension that copies an eLab-style coding problem into structured Markdown and adds a fifth **Solve It** action beside Save, Reset, Run, and Evaluate below the code editor. The solve flow preserves eLab's starter class name, injects generated Java into Ace for review, and never runs or evaluates automatically.
+A small Chrome/Edge extension for eLab programming pages.
+
+It adds exactly two extension actions:
+
+- **Solve** — sends the current problem and starter code to the companion Worker, then inserts the generated Java solution into Ace for review.
+- **Copy** — copies the problem and grading requirements as Markdown.
+
+The extension never clicks Run, Evaluate, Save, or Reset.
 
 ## Install the extension
 
-1. Download [`problem-copier-extension.zip`](./problem-copier-extension.zip), or clone/download this repository.
-2. If you downloaded the ZIP, extract it to a folder first.
-3. Open `chrome://extensions` in Chrome, or `edge://extensions` in Edge.
-4. Enable **Developer mode**.
-5. Click **Load unpacked**.
-6. Select the extracted `problem-copier-extension` folder — the folder containing `manifest.json`.
-7. Open or reload the coding problem page.
+1. Deploy the Worker in [`solver-worker/`](./solver-worker/).
+2. Open `chrome://extensions` or `edge://extensions`.
+3. Enable **Developer mode**.
+4. Choose **Load unpacked**.
+5. Select [`problem-copier-extension/`](./problem-copier-extension/).
+6. Open or reload an eLab problem page.
 
-Click the blue **Copy problem** button at the bottom-right of the page, or open the extension from the browser toolbar and click **Copy problem and test cases**.
+The extension sends requests only to the configured Worker. The Ollama API key stays in the Worker and is never included in the extension.
 
-To enable **Solve It**, deploy the companion Cloudflare Worker in `solver-worker/` and set its `/solve` URL in `problem-copier-extension/service-worker.js`. Detailed backend setup is in [`solver-worker/README.md`](./solver-worker/README.md).
+## Worker setup
 
-> Browser pages such as `chrome://extensions` cannot be accessed by extensions. If using a local HTML file, enable **Allow access to file URLs** for this extension in its details page.
+```bash
+cd solver-worker
+npm install
+cp .dev.vars.example .dev.vars
+```
 
-## Repository layout
+Put your Ollama key in `.dev.vars` for local development, then run:
 
-- `problem-copier-extension/` — installable unpacked extension
-- `problem-copier-extension.zip` — packaged extension for downloading/sharing
-- `solver-worker/` — Cloudflare Worker that securely calls OpenCode Zen
-- `layout.html` — sample page used during development
+```bash
+npm run dev
+```
 
-See [`problem-copier-extension/README.md`](./problem-copier-extension/README.md) for implementation details and URL-scope customization.
+For deployment:
+
+```bash
+npm run check
+npx wrangler secret put OLLAMA_API_KEY
+npm run deploy
+```
+
+The backend uses Hono and `ollama/browser` on Cloudflare Workers. A single request streams progress while Ollama generates, then returns complete Java or a specific error. Approximate grading checks appear as review warnings. No queue, database, or EC2 host is needed.
+
+See [`solver-worker/README.md`](./solver-worker/README.md) for the protocol, limits, and automated tests.
+
+> Browser-internal pages such as `chrome://extensions` cannot be modified by extensions. For a local HTML page, enable **Allow access to file URLs** in the extension details.

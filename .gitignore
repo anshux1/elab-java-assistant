@@ -3,3 +3,5 @@ node_modules/
 dist/
 solver-worker/.dev.vars
 *.log
+playwright-report/
+test-results/

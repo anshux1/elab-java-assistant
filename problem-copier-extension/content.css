@@ -1,8 +1,42 @@
-html.problem-copier-selection-enabled,
-html.problem-copier-selection-enabled body,
-html.problem-copier-selection-enabled body *:not(button):not(input):not(textarea) {
-  -webkit-user-select: text !important;
-  user-select: text !important;
+#elab-copy-button {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 2147483646;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+  font: 600 14px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  user-select: none;
+  transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+#elab-copy-button:hover {
+  background: #1d4ed8;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.34);
+  transform: translateY(-1px);
+}
+
+#elab-copy-button:active {
+  transform: translateY(0);
+}
+
+#elab-copy-button:focus-visible {
+  outline: 3px solid rgba(147, 197, 253, 0.95);
+  outline-offset: 3px;
+}
+
+#elab-copy-button[disabled] {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 #elab-solve-action #elab-solve-button {
@@ -53,62 +87,7 @@ html.problem-copier-selection-enabled body *:not(button):not(input):not(textarea
   transition: outline-color 180ms ease;
 }
 
-@keyframes elab-solver-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-#problem-copier-button {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 2147483646;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: #2563eb;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
-  font: 600 14px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  cursor: pointer;
-  -webkit-user-select: none !important;
-  user-select: none !important;
-  transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
-}
-
-#problem-copier-button:hover {
-  background: #1d4ed8;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.34);
-  transform: translateY(-1px);
-}
-
-#problem-copier-button:active {
-  transform: translateY(0);
-}
-
-#problem-copier-button:focus-visible {
-  outline: 3px solid rgba(147, 197, 253, 0.95);
-  outline-offset: 3px;
-}
-
-#problem-copier-button[disabled] {
-  cursor: wait;
-  opacity: 0.72;
-}
-
-#problem-copier-button .problem-copier-icon {
-  width: 17px;
-  height: 17px;
-  fill: currentColor;
-  pointer-events: none;
-}
-
-#problem-copier-toast {
+#elab-solver-toast {
   position: fixed;
   right: 22px;
   bottom: 76px;
@@ -126,11 +105,17 @@ html.problem-copier-selection-enabled body *:not(button):not(input):not(textarea
   transition: opacity 150ms ease, transform 150ms ease;
 }
 
-#problem-copier-toast.problem-copier-toast-visible {
+#elab-solver-toast.elab-solver-toast-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-#problem-copier-toast.problem-copier-toast-error {
+#elab-solver-toast.elab-solver-toast-error {
   background: #991b1b;
+}
+
+@keyframes elab-solver-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

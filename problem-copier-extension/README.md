@@ -1,30 +1,20 @@
-# eLab Problem Copier & Solver
+# eLab Solver extension
 
-A Manifest V3 browser extension for the eLab-style online code submitter shown in `../layout.html`.
+This is a Manifest V3 extension with two in-page actions only:
 
-It copies the problem description, functional description, constraints, input/output format, logical test cases, mandatory test cases, and complexity test cases as readable Markdown. It also injects a native-looking **Solve It** action below the Ace editor once the companion Worker is configured.
+- **Solve** appears in the eLab code-editor action row and inserts an Ollama-generated Java solution into Ace.
+- **Copy** appears at the bottom-right and copies the problem, formats, and grading requirements as Markdown.
 
-## Install in Chrome / Edge
+The extension does not add a popup and does not trigger Run, Evaluate, Save, or Reset.
 
-1. Open `chrome://extensions` (or `edge://extensions`).
-2. Turn on **Developer mode**.
-3. Click **Load unpacked**.
-4. Select this `problem-copier-extension` folder.
-5. Open or reload the problem page.
+The content script supports the eLab layout used by this project. Replace `<all_urls>` in `manifest.json` with the real eLab URL pattern when it is known.
 
-Use either:
+## Solve behavior
 
-- the blue **Copy problem** button at the bottom-right of the problem page, or
-- the extension icon in the browser toolbar and **Copy problem and test cases**.
+Requires Chrome/Edge 114 or newer. Load this directory as an unpacked extension, then reload the eLab page after extension updates.
 
-The Code Editor footer also becomes **Save · Reset · Solve It · Run · Evaluate**. **Solve It** reads the current starter code, asks the configured Worker for a Java solution, and injects the result for review. It never clicks Run or Evaluate.
+The extension uses native fetch and an active runtime port to receive progress from the Worker. It inserts only the final Java result, displays grading warnings, and preserves edits made while generation was running. Closing the page or navigating to another problem cancels the request. There is no saved job or background history.
 
-The extension opens collapsed test-case sections when necessary so their contents are included. The clipboard output is Markdown and ends with a solver prompt for Java.
+The server is allowed 120 seconds for generation and one repair; the extension stops after 135 seconds overall or 25 seconds without server data. Server progress arrives every 10 seconds. Errors appear in the page toast with a useful reason.
 
-## Notes
-
-- The content script currently uses `<all_urls>` because the submitter URL was not provided. For least privilege, replace it in `manifest.json` with the submitter's actual URL pattern, for example `https://submitter.example.com/*`, then reload the extension.
-- Browser-internal pages such as `chrome://extensions` cannot be modified by extensions.
-- Solver requests go through `service-worker.js`; the OpenCode API key remains in the Cloudflare Worker and is never shipped in the extension.
-- Before using **Solve It**, register the Worker URL and set `OPENCODE_API_KEY` as described in `../solver-worker/README.md`. The checked-in service worker already targets the deployed Worker endpoint.
-- Free-model prompts may be retained or used for provider improvement. Do not send private or personal code.
+`api-client.js` reads bounded NDJSON streams and JSON responses. `service-worker.js` handles the port and HTTP cancellation; `content.js` handles scraping, progress and insertion; `page-bridge.js` accesses Ace. The Ollama API key is never included in these files.

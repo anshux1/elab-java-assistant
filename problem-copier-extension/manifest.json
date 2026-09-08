@@ -1,37 +1,43 @@
 {
   "manifest_version": 3,
-  "name": "eLab Problem Copier & Solver",
-  "description": "Copies eLab programming problems and can inject AI-generated Java solutions for review.",
-  "version": "1.1.0",
+  "name": "eLab Solver",
+  "description": "Adds only Solve and Copy actions to eLab programming problems.",
+  "version": "2.1.0",
   "permissions": [
-    "activeTab",
-    "clipboardWrite",
-    "scripting"
+    "clipboardWrite"
   ],
   "host_permissions": [
-    "https://*.workers.dev/*",
+    "https://elab-solver.elab-solver-worker.workers.dev/*",
     "http://127.0.0.1:8787/*",
     "http://localhost:8787/*"
   ],
   "background": {
-    "service_worker": "service-worker.js"
-  },
-  "action": {
-    "default_title": "Copy problem statement",
-    "default_popup": "popup.html"
+    "service_worker": "service-worker.js",
+    "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["page-bridge.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "page-bridge.js"
+      ],
       "run_at": "document_start",
       "world": "MAIN"
     },
     {
-      "matches": ["<all_urls>"],
-      "css": ["content.css"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "minimum_chrome_version": "114"
 }
